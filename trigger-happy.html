@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Trigger Happy</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sage: #3d6b4f;
+  --sage-mid: #5a8a6a;
+  --sage-light: #e6f0e9;
+  --sage-pale: #f2f7f4;
+  --cream: #faf8f3;
+  --warm: #f5f1e8;
+  --charcoal: #1a2118;
+  --slate: #3a4a3e;
+  --muted: #6b7b6e;
+  --border: #dce6de;
+  --amber: #c07830;
+  --amber-bg: #fdf3e7;
+  --rose: #b85560;
+  --rose-bg: #fceef0;
+  --sky: #3a6e8a;
+  --sky-bg: #e8f3f8;
+  --lavender: #6b5c8a;
+  --lavender-bg: #f0ecf7;
+  --r: 18px;
+  --r-sm: 12px;
+  --r-lg: 24px;
+  --shadow: 0 2px 16px rgba(26,33,24,0.08);
+  --shadow-lg: 0 8px 40px rgba(26,33,24,0.14);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--charcoal);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── SCREENS ── */
+.screen {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  background: var(--cream);
+  display: none;
+  flex-direction: column;
+}
+.screen.active { display: flex; }
+
+/* ── TRANSITIONS ── */
+.screen { opacity: 0; transform: translateX(30px); transition: opacity 0.28s ease, transform 0.28s ease; }
+.screen.active { opacity: 1; transform: translateX(0); }
+.screen.slide-out { opacity: 0; transform: translateX(-30px); }
+.screen.slide-in-left { transform: translateX(-30px); }
+
+/* ── NAV BAR ── */
+.nav-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(250,248,243,0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+  z-index: 100;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 20px;
+  border-radius: var(--r-sm);
+  transition: transform 0.15s ease;
+}
+.nav-item:active { transform: scale(0.92); }
+.nav-icon {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-icon svg { width: 22px; height: 22px; }
+.nav-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+.nav-item.active .nav-label { color: var(--sage); }
+.nav-item.active .nav-icon svg { stroke: var(--sage); }
+.nav-item:not(.active) .nav-icon svg { stroke: #aab8ae; }
+
+/* ── SCROLL CONTENT ── */
+.scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+}
+
+/* ── HEADER ── */
+.page-header {
+  padding: 56px 24px 20px;
+}
+.page-header .eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sage);
+  margin-bottom: 6px;
+}
+.page-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--charcoal);
+}
+.page-header h1 em {
+  font-style: italic;
+  color: var(--sage);
+}
+
+/* ── HOME SCREEN ── */
+.home-hero {
+  margin: 0 20px 24px;
+  background: var(--sage);
+  border-radius: var(--r-lg);
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.home-hero::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+.home-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; left: -20px;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
+}
+.hero-greeting {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 4px;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+.hero-title em { font-style: italic; opacity: 0.85; }
+.hero-stats {
+  display: flex;
+  gap: 12px;
+}
+.hero-stat {
+  flex: 1;
+  background: rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+}
+.hero-stat .num {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1;
+}
+.hero-stat .lbl {
+  font-size: 11px;
+  color: rgba(255,255,255,0.65);
+  margin-top: 3px;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 24px 12px;
+}
+
+/* ── LOG BUTTON (HOME) ── */
+.log-cta {
+  margin: 0 20px 28px;
+  background: var(--charcoal);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: var(--shadow);
+  width: calc(100% - 40px);
+}
+.log-cta:active { transform: scale(0.97); }
+.log-cta-text { text-align: left; }
+.log-cta-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #fff;
+}
+.log-cta-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 2px;
+}
+.log-cta-icon {
+  width: 44px; height: 44px;
+  background: var(--sage);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.log-cta-icon svg { width: 22px; height: 22px; stroke: #fff; }
+
+/* ── ENTRY CARDS ── */
+.entries-list {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.entry-card {
+  background: var(--warm-white, #fff);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  position: relative;
+}
+.entry-card:active { transform: scale(0.98); }
+.entry-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.entry-body { flex: 1; min-width: 0; }
+.entry-what {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--charcoal);
+  line-height: 1.4;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.entry-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.entry-tag {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.01em;
+}
+.entry-time {
+  font-size: 11px;
+  color: var(--muted);
+}
+.intensity-bar {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.intensity-pip {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+}
+
+.cat-work { background: var(--amber-bg); color: var(--amber); }
+.cat-relationship { background: var(--rose-bg); color: var(--rose); }
+.cat-environment { background: var(--sky-bg); color: var(--sky); }
+.cat-health { background: var(--lavender-bg); color: var(--lavender); }
+.cat-self { background: var(--sage-light); color: var(--sage); }
+.cat-other { background: #f0f0f0; color: #666; }
+
+.dot-work { background: var(--amber); }
+.dot-relationship { background: var(--rose); }
+.dot-environment { background: var(--sky); }
+.dot-health { background: var(--lavender); }
+.dot-self { background: var(--sage); }
+.dot-other { background: #aaa; }
+
+.empty-state {
+  text-align: center;
+  padding: 48px 32px;
+  color: var(--muted);
+}
+.empty-state .empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+.empty-state p {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── LOG SCREEN ── */
+.log-screen-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 56px 24px 0;
+}
+.log-step { display: none; flex-direction: column; flex: 1; }
+.log-step.active { display: flex; }
+
+.back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 0;
+  margin-bottom: 28px;
+  transition: color 0.15s;
+}
+.back-btn:active { color: var(--charcoal); }
+.back-btn svg { width: 18px; height: 18px; stroke: currentColor; }
+
+.step-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sage);
+  margin-bottom: 8px;
+}
+.step-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--charcoal);
+  margin-bottom: 6px;
+}
+.step-title em { font-style: italic; color: var(--sage); }
+.step-sub {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 24px;
+}
+
+/* ── TEXTAREA ── */
+.speak-area-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+.speak-textarea {
+  flex: 1;
+  min-height: 180px;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--charcoal);
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s;
+  box-shadow: var(--shadow);
+}
+.speak-textarea:focus { border-color: var(--sage); }
+.speak-textarea::placeholder { color: #b0bdb3; }
+
+/* ── MIC BUTTON ── */
+.mic-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.mic-btn {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--sage-light);
+  color: var(--sage);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow);
+}
+.mic-btn svg { width: 24px; height: 24px; stroke: currentColor; }
+.mic-btn.recording {
+  background: var(--rose);
+  animation: mic-pulse 1.2s ease infinite;
+}
+.mic-btn.recording svg { stroke: #fff; }
+@keyframes mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(184,85,96,0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(184,85,96,0); }
+}
+.mic-hint {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.mic-hint.active-hint { color: var(--rose); font-weight: 500; }
+
+.extract-btn {
+  width: 100%;
+  background: var(--sage);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  padding: 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 16px 0 32px;
+  transition: transform 0.15s ease, opacity 0.15s;
+  letter-spacing: 0.01em;
+}
+.extract-btn:active { transform: scale(0.97); }
+.extract-btn:disabled { opacity: 0.45; }
+
+/* ── REVIEW STEP ── */
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  margin-bottom: 16px;
+}
+.review-field {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.review-field:active { border-color: var(--sage); }
+.review-field-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.review-field-icon svg { width: 18px; height: 18px; }
+.icon-what { background: var(--sage-light); }
+.icon-what svg { stroke: var(--sage); }
+.icon-who { background: var(--rose-bg); }
+.icon-who svg { stroke: var(--rose); }
+.icon-where { background: var(--sky-bg); }
+.icon-where svg { stroke: var(--sky); }
+.icon-when { background: var(--amber-bg); }
+.icon-when svg { stroke: var(--amber); }
+.icon-intensity { background: var(--lavender-bg); }
+.icon-intensity svg { stroke: var(--lavender); }
+.icon-category { background: var(--sage-light); }
+.icon-category svg { stroke: var(--sage-mid); }
+
+.review-field-body { flex: 1; min-width: 0; }
+.review-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.review-value {
+  font-size: 15px;
+  color: var(--charcoal);
+  font-weight: 500;
+  line-height: 1.4;
+  word-break: break-word;
+}
+.review-value.placeholder { color: #b0bdb3; font-weight: 400; font-style: italic; }
+.review-edit-icon {
+  width: 20px; height: 20px;
+  color: #c0ccc4;
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+.review-edit-icon svg { width: 20px; height: 20px; stroke: currentColor; }
+
+/* ── INTENSITY PICKER ── */
+.intensity-row {
+  display: flex;
+  gap: 8px;
+}
+.intensity-opt {
+  flex: 1;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  background: #fff;
+  padding: 10px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.intensity-opt span { display: block; font-size: 13px; font-weight: 500; color: var(--muted); }
+.intensity-opt.sel {
+  border-color: var(--rose);
+  background: var(--rose-bg);
+}
+.intensity-opt.sel span { color: var(--rose); }
+
+/* ── CATEGORY PICKER ── */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.cat-opt {
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  background: #fff;
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.cat-opt.sel {
+  border-color: var(--sage);
+  background: var(--sage-light);
+  color: var(--sage);
+}
+
+/* ── EDIT MODAL ── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,33,24,0.5);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+}
+.modal-backdrop.open { display: flex; }
+.modal-sheet {
+  background: var(--cream);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  padding: 20px 24px max(28px, env(safe-area-inset-bottom));
+  animation: slide-up 0.3s ease;
+}
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.modal-handle {
+  width: 40px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--charcoal);
+  margin-bottom: 14px;
+}
+.modal-input {
+  width: 100%;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 14px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  color: var(--charcoal);
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 14px;
+}
+.modal-input:focus { border-color: var(--sage); }
+.modal-save {
+  width: 100%;
+  background: var(--sage);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── SAVE BUTTON ── */
+.save-btn {
+  width: 100%;
+  background: var(--charcoal);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  padding: 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: transform 0.15s;
+  letter-spacing: 0.01em;
+}
+.save-btn svg { width: 20px; height: 20px; stroke: #fff; }
+.save-btn:active { transform: scale(0.97); }
+
+/* ── SUCCESS ── */
+.success-screen-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px;
+  text-align: center;
+}
+.success-ring {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: var(--sage-light);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 28px;
+  animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes pop-in {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.success-ring svg { width: 40px; height: 40px; stroke: var(--sage); }
+.success-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--charcoal);
+  margin-bottom: 10px;
+}
+.success-sub {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 260px;
+}
+
+/* ── JOURNAL SCREEN ── */
+.journal-filters {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.journal-filters::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex-shrink: 0;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  border-radius: 20px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.filter-chip.active {
+  border-color: var(--sage);
+  background: var(--sage-light);
+  color: var(--sage);
+}
+
+/* ── INSIGHTS SCREEN ── */
+.insights-card {
+  margin: 0 20px 14px;
+  background: #fff;
+  border-radius: var(--r);
+  padding: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.insights-card-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.insights-prompt-area {
+  background: var(--sage-pale);
+  border-radius: var(--r-sm);
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--slate);
+  font-family: 'DM Sans', sans-serif;
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.copy-btn {
+  width: 100%;
+  background: var(--sage);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.15s;
+}
+.copy-btn:active { transform: scale(0.97); }
+.copy-btn svg { width: 18px; height: 18px; stroke: #fff; }
+
+.prompt-style-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.prompt-style-btn {
+  border: 1.5px solid var(--border);
+  background: #fff;
+  border-radius: var(--r-sm);
+  padding: 12px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--slate);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.prompt-style-btn.active {
+  border-color: var(--sage);
+  background: var(--sage-light);
+  color: var(--sage);
+}
+.prompt-style-btn svg { width: 18px; height: 18px; stroke: currentColor; flex-shrink: 0; }
+
+.stat-row {
+  display: flex;
+  gap: 10px;
+  margin: 0 20px 14px;
+}
+.stat-box {
+  flex: 1;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--charcoal);
+  line-height: 1;
+}
+.stat-lbl {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+/* ── GROUNDING SCREEN ── */
+.grounding-cards {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.grounding-card {
+  background: #fff;
+  border-radius: var(--r);
+  padding: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.grounding-card:active { transform: scale(0.98); }
+.grounding-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.grounding-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 20px;
+}
+.grounding-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--charcoal);
+}
+.grounding-card-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── BREATHE EXERCISE ── */
+.breathe-modal {
+  position: fixed;
+  inset: 0;
+  background: var(--charcoal);
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.breathe-modal.open { display: flex; }
+.breathe-close {
+  position: absolute;
+  top: max(20px, env(safe-area-inset-top));
+  right: 20px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #fff;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.breathe-circle {
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: rgba(61,107,79,0.3);
+  border: 2px solid rgba(90,138,106,0.5);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 32px;
+  transition: transform 4s ease-in-out;
+}
+.breathe-circle.expand { transform: scale(1.45); }
+.breathe-circle-inner {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: var(--sage);
+  opacity: 0.8;
+}
+.breathe-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  color: #fff;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.breathe-count {
+  font-size: 48px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 32px;
+}
+.breathe-start {
+  background: var(--sage);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  padding: 16px 40px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── ENTRY DETAIL MODAL ── */
+.entry-detail-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,33,24,0.5);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+}
+.entry-detail-modal.open { display: flex; }
+.entry-detail-sheet {
+  background: var(--cream);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  padding: 20px 24px max(40px, env(safe-area-inset-bottom));
+  animation: slide-up 0.3s ease;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.entry-detail-what {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--charcoal);
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+.entry-detail-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.entry-detail-field {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.entry-detail-field-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  width: 70px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.entry-detail-field-val {
+  font-size: 14px;
+  color: var(--slate);
+  flex: 1;
+}
+.entry-note {
+  background: var(--sage-pale);
+  border-radius: var(--r-sm);
+  padding: 14px;
+  font-size: 14px;
+  color: var(--slate);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.delete-entry-btn {
+  width: 100%;
+  background: var(--rose-bg);
+  color: var(--rose);
+  border: 1.5px solid #f0d0d3;
+  border-radius: var(--r-sm);
+  padding: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── DATE GROUPS ── */
+.date-group-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 20px 8px;
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HOME ═══════════════════════════════ -->
+<div class="screen active" id="screen-home">
+  <div class="scroll-body">
+    <div class="page-header">
+      <div class="eyebrow">Welcome back</div>
+      <h1>Trigger <em>Happy</em></h1>
+    </div>
+
+    <div class="home-hero">
+      <div class="hero-greeting" id="hero-greeting">Let's check in</div>
+      <div class="hero-title">How are you <em>holding up?</em></div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="num" id="stat-week">0</div>
+          <div class="lbl">This week</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num" id="stat-total">0</div>
+          <div class="lbl">Total logged</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num" id="stat-streak">0</div>
+          <div class="lbl">Day streak</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="log-cta" onclick="goLogStep1()">
+      <div class="log-cta-text">
+        <div class="log-cta-title">Log a trigger</div>
+        <div class="log-cta-sub">Talk or type what happened</div>
+      </div>
+      <div class="log-cta-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+    </button>
+
+    <div class="section-title">Recent entries</div>
+    <div class="entries-list" id="home-entries"></div>
+  </div>
+  <nav class="nav-bar">
+    <button class="nav-item active" onclick="showScreen('home')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('journal')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+      <span class="nav-label">Journal</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('insights')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      <span class="nav-label">Insights</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('grounding')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+      <span class="nav-label">Ground</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════ LOG ═══════════════════════════════ -->
+<div class="screen" id="screen-log">
+  <div class="log-screen-inner">
+
+    <!-- STEP 1: Write/Speak -->
+    <div class="log-step active" id="log-step-1">
+      <button class="back-btn" onclick="showScreen('home')">
+        <svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <div class="step-eyebrow">Step 1 of 2</div>
+      <div class="step-title">What <em>happened?</em></div>
+      <div class="step-sub">Talk it out or type it. Don't filter yourself — just say what happened.</div>
+
+      <div class="speak-area-wrap">
+        <textarea class="speak-textarea" id="trigger-text" placeholder="e.g. My manager called me out in front of the whole team at 2pm today and I felt so embarrassed and angry…"></textarea>
+        <div class="mic-row">
+          <button class="mic-btn" id="mic-btn" onclick="toggleMic()">
+            <svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </button>
+          <span class="mic-hint" id="mic-hint">Tap the mic to speak</span>
+        </div>
+        <button class="extract-btn" id="extract-btn" onclick="goReview()" disabled>Extract the details →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Review -->
+    <div class="log-step" id="log-step-2">
+      <button class="back-btn" onclick="goBack()">
+        <svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Edit entry
+      </button>
+      <div class="step-eyebrow">Step 2 of 2</div>
+      <div class="step-title">Does this <em>look right?</em></div>
+      <div class="step-sub">Tap any field to edit it.</div>
+
+      <div class="review-list" id="review-fields"></div>
+      <button class="save-btn" onclick="saveEntry()">
+        <svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Save entry
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ SUCCESS ═══════════════════════════════ -->
+<div class="screen" id="screen-success">
+  <div class="success-screen-inner">
+    <div class="success-ring">
+      <svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-title">Entry saved</div>
+    <div class="success-sub">Awareness is the first step. You're doing the work.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ JOURNAL ═══════════════════════════════ -->
+<div class="screen" id="screen-journal">
+  <div class="scroll-body">
+    <div class="page-header">
+      <div class="eyebrow">Your story</div>
+      <h1>The <em>Journal</em></h1>
+    </div>
+    <div class="journal-filters">
+      <button class="filter-chip active" onclick="filterJournal('all', this)">All</button>
+      <button class="filter-chip" onclick="filterJournal('relationship', this)">Relationship</button>
+      <button class="filter-chip" onclick="filterJournal('work', this)">Work</button>
+      <button class="filter-chip" onclick="filterJournal('environment', this)">Environment</button>
+      <button class="filter-chip" onclick="filterJournal('health', this)">Health</button>
+      <button class="filter-chip" onclick="filterJournal('self', this)">Self</button>
+    </div>
+    <div id="journal-entries"></div>
+  </div>
+  <nav class="nav-bar">
+    <button class="nav-item" onclick="showScreen('home')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item active" onclick="showScreen('journal')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+      <span class="nav-label">Journal</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('insights')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      <span class="nav-label">Insights</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('grounding')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+      <span class="nav-label">Ground</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════ INSIGHTS ═══════════════════════════════ -->
+<div class="screen" id="screen-insights">
+  <div class="scroll-body">
+    <div class="page-header">
+      <div class="eyebrow">Understand yourself</div>
+      <h1>Your <em>Insights</em></h1>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="stat-num" id="ins-total">0</div>
+        <div class="stat-lbl">Total triggers</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="ins-top-cat">–</div>
+        <div class="stat-lbl">Top category</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="ins-avg">–</div>
+        <div class="stat-lbl">Avg intensity</div>
+      </div>
+    </div>
+
+    <div class="insights-card">
+      <div class="insights-card-title">AI Prompt Builder</div>
+      <div class="step-sub" style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5">Choose a prompt style, then copy and paste into Claude or ChatGPT for a deep analysis.</div>
+      <div class="prompt-style-row" id="prompt-styles">
+        <button class="prompt-style-btn active" data-style="trends" onclick="selectPromptStyle(this)">
+          <svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Analyse my trends & patterns
+        </button>
+        <button class="prompt-style-btn" data-style="causes" onclick="selectPromptStyle(this)">
+          <svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          What might be causing these?
+        </button>
+        <button class="prompt-style-btn" data-style="coping" onclick="selectPromptStyle(this)">
+          <svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Suggest coping strategies
+        </button>
+      </div>
+      <div class="insights-prompt-area" id="prompt-preview">Add some entries first to generate your personalised AI prompt.</div>
+      <button class="copy-btn" onclick="copyPrompt()">
+        <svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy prompt to clipboard
+      </button>
+    </div>
+  </div>
+  <nav class="nav-bar">
+    <button class="nav-item" onclick="showScreen('home')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('journal')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+      <span class="nav-label">Journal</span>
+    </button>
+    <button class="nav-item active" onclick="showScreen('insights')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      <span class="nav-label">Insights</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('grounding')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+      <span class="nav-label">Ground</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════ GROUNDING ═══════════════════════════════ -->
+<div class="screen" id="screen-grounding">
+  <div class="scroll-body">
+    <div class="page-header">
+      <div class="eyebrow">Come back to now</div>
+      <h1>Grounding <em>Corner</em></h1>
+    </div>
+    <div class="grounding-cards">
+      <div class="grounding-card" onclick="openBreathe()">
+        <div class="grounding-card-header">
+          <div class="grounding-icon" style="background:var(--sage-light)">🌬</div>
+          <div class="grounding-card-title">Box Breathing</div>
+        </div>
+        <div class="grounding-card-desc">A simple breathing technique to calm your nervous system in under 2 minutes.</div>
+      </div>
+      <div class="grounding-card" onclick="openExercise('5-4-3-2-1')">
+        <div class="grounding-card-header">
+          <div class="grounding-icon" style="background:var(--sky-bg)">👁</div>
+          <div class="grounding-card-title">5-4-3-2-1 Senses</div>
+        </div>
+        <div class="grounding-card-desc">Use your five senses to anchor yourself in the present moment.</div>
+      </div>
+      <div class="grounding-card" onclick="openExercise('body-scan')">
+        <div class="grounding-card-header">
+          <div class="grounding-icon" style="background:var(--lavender-bg)">🧘</div>
+          <div class="grounding-card-title">Body Scan</div>
+        </div>
+        <div class="grounding-card-desc">Slowly bring awareness to each part of your body to release tension.</div>
+      </div>
+      <div class="grounding-card" onclick="openExercise('reframe')">
+        <div class="grounding-card-header">
+          <div class="grounding-icon" style="background:var(--amber-bg)">💡</div>
+          <div class="grounding-card-title">Cognitive Reframe</div>
+        </div>
+        <div class="grounding-card-desc">Challenge the thoughts around your trigger and find a balanced perspective.</div>
+      </div>
+    </div>
+  </div>
+  <nav class="nav-bar">
+    <button class="nav-item" onclick="showScreen('home')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('journal')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+      <span class="nav-label">Journal</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('insights')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      <span class="nav-label">Insights</span>
+    </button>
+    <button class="nav-item active" onclick="showScreen('grounding')">
+      <div class="nav-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+      <span class="nav-label">Ground</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ═══════════════════════ EDIT MODAL ═══════════════════════ -->
+<div class="modal-backdrop" id="edit-modal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">Edit field</div>
+    <div id="modal-body"></div>
+    <button class="modal-save" onclick="saveModalField()">Save</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════ ENTRY DETAIL ═══════════════════════ -->
+<div class="entry-detail-modal" id="entry-detail-modal" onclick="closeEntryDetail(event)">
+  <div class="entry-detail-sheet">
+    <div class="modal-handle"></div>
+    <div class="entry-detail-what" id="detail-what"></div>
+    <div class="entry-detail-fields" id="detail-fields"></div>
+    <div class="entry-note" id="detail-note"></div>
+    <button class="delete-entry-btn" onclick="deleteCurrentEntry()">Delete this entry</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════ BREATHE MODAL ═══════════════════════ -->
+<div class="breathe-modal" id="breathe-modal">
+  <button class="breathe-close" onclick="closeBreathe()">✕</button>
+  <div class="breathe-circle" id="breathe-circle">
+    <div class="breathe-circle-inner"></div>
+  </div>
+  <div class="breathe-label" id="breathe-label">Box Breathing</div>
+  <div class="breathe-count" id="breathe-count">4</div>
+  <button class="breathe-start" id="breathe-start-btn" onclick="startBreathe()">Begin</button>
+</div>
+
+<!-- ═══════════════════════ EXERCISE MODAL ═══════════════════════ -->
+<div class="breathe-modal" id="exercise-modal" style="overflow-y:auto;padding:60px 32px max(40px,env(safe-area-inset-bottom))">
+  <button class="breathe-close" onclick="document.getElementById('exercise-modal').classList.remove('open')">✕</button>
+  <div id="exercise-content"></div>
+</div>
+
+<script>
+// ═══════════════════ STATE ═══════════════════
+let entries = JSON.parse(localStorage.getItem('th_entries') || '[]');
+let currentScreen = 'home';
+let reviewData = {};
+let editingField = null;
+let currentDetailId = null;
+let currentPromptStyle = 'trends';
+let micRecognition = null;
+let isRecording = false;
+let breatheInterval = null;
+let breathePhase = 0;
+const breathePhases = [
+  { label: 'Breathe in', count: 4, expand: true },
+  { label: 'Hold', count: 4, expand: true },
+  { label: 'Breathe out', count: 4, expand: false },
+  { label: 'Hold', count: 4, expand: false },
+];
+
+// ═══════════════════ SCREEN NAV ═══════════════════
+function showScreen(name) {
+  const prev = document.getElementById('screen-' + currentScreen);
+  const next = document.getElementById('screen-' + name);
+  if (!next || currentScreen === name) return;
+  prev.classList.remove('active');
+  next.classList.add('active');
+  currentScreen = name;
+  if (name === 'home') renderHome();
+  if (name === 'journal') renderJournal('all');
+  if (name === 'insights') renderInsights();
+}
+
+function goLogStep1() {
+  document.getElementById('trigger-text').value = '';
+  document.getElementById('extract-btn').disabled = true;
+  document.getElementById('mic-hint').textContent = 'Tap the mic to speak';
+  document.getElementById('mic-hint').className = 'mic-hint';
+  showScreen('log');
+  document.getElementById('log-step-1').style.display = 'flex';
+  document.getElementById('log-step-2').style.display = 'none';
+}
+
+function goBack() {
+  document.getElementById('log-step-1').style.display = 'flex';
+  document.getElementById('log-step-2').style.display = 'none';
+}
+
+// ═══════════════════ TEXTAREA ═══════════════════
+document.getElementById('trigger-text').addEventListener('input', function() {
+  document.getElementById('extract-btn').disabled = this.value.trim().length < 5;
+});
+
+// ═══════════════════ SPEECH TO TEXT ═══════════════════
+function toggleMic() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Speech recognition is not supported in this browser. Please type your entry.');
+    return;
+  }
+  if (isRecording) {
+    stopMic();
+  } else {
+    startMic();
+  }
+}
+
+function startMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  micRecognition = new SR();
+  micRecognition.continuous = true;
+  micRecognition.interimResults = true;
+  micRecognition.lang = 'en-AU';
+
+  const textarea = document.getElementById('trigger-text');
+  const existingText = textarea.value;
+  let interim = '';
+
+  micRecognition.onresult = (e) => {
+    interim = '';
+    let final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        final += e.results[i][0].transcript + ' ';
+      } else {
+        interim += e.results[i][0].transcript;
+      }
+    }
+    if (final) {
+      textarea.value = existingText + (existingText ? ' ' : '') + final;
+    } else {
+      textarea.value = existingText + (existingText ? ' ' : '') + interim;
+    }
+    document.getElementById('extract-btn').disabled = textarea.value.trim().length < 5;
+  };
+
+  micRecognition.onerror = () => stopMic();
+  micRecognition.onend = () => { if (isRecording) micRecognition.start(); };
+
+  micRecognition.start();
+  isRecording = true;
+  document.getElementById('mic-btn').classList.add('recording');
+  document.getElementById('mic-hint').textContent = 'Listening… tap to stop';
+  document.getElementById('mic-hint').className = 'mic-hint active-hint';
+}
+
+function stopMic() {
+  if (micRecognition) { micRecognition.onend = null; micRecognition.stop(); }
+  isRecording = false;
+  document.getElementById('mic-btn').classList.remove('recording');
+  document.getElementById('mic-hint').textContent = 'Tap the mic to speak';
+  document.getElementById('mic-hint').className = 'mic-hint';
+}
+
+// ═══════════════════ EXTRACT / PARSE ═══════════════════
+function goReview() {
+  stopMic();
+  const text = document.getElementById('trigger-text').value.trim();
+  if (!text) return;
+  reviewData = parseEntry(text);
+  renderReview();
+  document.getElementById('log-step-1').style.display = 'none';
+  document.getElementById('log-step-2').style.display = 'flex';
+}
+
+function parseEntry(text) {
+  const now = new Date();
+  const lower = text.toLowerCase();
+
+  // Who
+  const whoPatterns = [
+    /\bmy (manager|boss|partner|mum|mom|dad|father|mother|sister|brother|friend|colleague|coworker|teacher|coach|therapist|doctor|neighbour|neighbor|flatmate|housemate|husband|wife|boyfriend|girlfriend|son|daughter|kid|child)\b/gi,
+    /\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)?)\s(?:said|told|did|made|called|shouted|yelled|snapped|ignored|dismissed)/g
+  ];
+  let who = '';
+  for (const p of whoPatterns) {
+    const m = text.match(p);
+    if (m && m[0]) { who = m[0].replace(/^my /i, 'My '); break; }
+  }
+
+  // Where
+  const whereMap = {
+    'at work': 'Work', 'in the office': 'Office', 'at home': 'Home',
+    'in the car': 'In the car', 'on the phone': 'On the phone',
+    'at school': 'School', 'at the gym': 'Gym', 'online': 'Online',
+    'on instagram': 'Online', 'on facebook': 'Online', 'in a meeting': 'Meeting'
+  };
+  let where = '';
+  for (const [k, v] of Object.entries(whereMap)) {
+    if (lower.includes(k)) { where = v; break; }
+  }
+
+  // Time
+  const timeMatch = text.match(/\b(\d{1,2}(?::\d{2})?\s*(?:am|pm)|this morning|this afternoon|this evening|last night|tonight|just now|an hour ago|earlier today)\b/i);
+  let when = timeMatch ? timeMatch[0] : now.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+  const dateStr = now.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+
+  // Intensity
+  const highWords = ['furious', 'livid', 'screaming', 'absolutely', 'couldn\'t believe', 'lost it', 'exploded', 'seething', 'devastated', 'humiliated'];
+  const midWords = ['upset', 'frustrated', 'annoyed', 'angry', 'embarrassed', 'anxious', 'anxious', 'hurt', 'bothered'];
+  const lowWords = ['a bit', 'slightly', 'kind of', 'sort of', 'mildly', 'little'];
+  let intensity = 3;
+  if (highWords.some(w => lower.includes(w))) intensity = 5;
+  else if (midWords.some(w => lower.includes(w))) intensity = 3;
+  else if (lowWords.some(w => lower.includes(w))) intensity = 2;
+
+  // Category
+  const catMap = {
+    work: ['manager', 'boss', 'colleague', 'coworker', 'meeting', 'work', 'office', 'job', 'deadline', 'presentation'],
+    relationship: ['partner', 'husband', 'wife', 'boyfriend', 'girlfriend', 'friend', 'mum', 'mom', 'dad', 'brother', 'sister', 'family'],
+    environment: ['traffic', 'noise', 'crowd', 'heat', 'cold', 'weather', 'commute', 'neighbour', 'neighbor'],
+    health: ['tired', 'pain', 'sick', 'anxious', 'anxiety', 'sleep', 'headache', 'body'],
+    self: ['myself', 'myself', 'i feel', 'i felt', 'let myself', 'disappointed in myself'],
+  };
+  let category = 'other';
+  for (const [cat, words] of Object.entries(catMap)) {
+    if (words.some(w => lower.includes(w))) { category = cat; break; }
+  }
+
+  // Summary
+  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+  const summary = sentences[0] ? sentences[0].trim() : text.slice(0, 80);
+
+  return { what: summary, who: who || '', where: where || '', when: when + ' · ' + dateStr, intensity, category, note: text, timestamp: now.toISOString() };
+}
+
+// ═══════════════════ RENDER REVIEW ═══════════════════
+const fieldDefs = [
+  { key: 'what', label: 'What happened', iconClass: 'icon-what', iconSvg: '<svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>', type: 'text' },
+  { key: 'who', label: 'Who was involved', iconClass: 'icon-who', iconSvg: '<svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>', type: 'text' },
+  { key: 'where', label: 'Where', iconClass: 'icon-where', iconSvg: '<svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>', type: 'text' },
+  { key: 'when', label: 'When', iconClass: 'icon-when', iconSvg: '<svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>', type: 'text' },
+  { key: 'intensity', label: 'Intensity', iconClass: 'icon-intensity', iconSvg: '<svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>', type: 'intensity' },
+  { key: 'category', label: 'Category', iconClass: 'icon-category', iconSvg: '<svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>', type: 'category' },
+];
+
+function renderReview() {
+  const container = document.getElementById('review-fields');
+  container.innerHTML = fieldDefs.map(f => {
+    const val = reviewData[f.key];
+    let displayVal = '';
+    if (f.type === 'intensity') displayVal = ['', 'Very low', 'Low', 'Moderate', 'High', 'Very high'][val] || 'Moderate';
+    else if (f.type === 'category') displayVal = val ? val.charAt(0).toUpperCase() + val.slice(1) : '';
+    else displayVal = val;
+    const isEmpty = !displayVal;
+    return `<div class="review-field" onclick="openEditModal('${f.key}')">
+      <div class="review-field-icon ${f.iconClass}">${f.iconSvg}</div>
+      <div class="review-field-body">
+        <div class="review-label">${f.label}</div>
+        <div class="review-value ${isEmpty ? 'placeholder' : ''}">${isEmpty ? 'Not detected — tap to add' : displayVal}</div>
+      </div>
+      <div class="review-edit-icon"><svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════ EDIT MODAL ═══════════════════
+function openEditModal(key) {
+  editingField = key;
+  const def = fieldDefs.find(f => f.key === key);
+  document.getElementById('modal-title').textContent = 'Edit · ' + def.label;
+  const body = document.getElementById('modal-body');
+
+  if (def.type === 'intensity') {
+    const labels = ['', 'Very low', 'Low', 'Moderate', 'High', 'Very high'];
+    body.innerHTML = `<div class="intensity-row">${[1,2,3,4,5].map(i =>
+      `<div class="intensity-opt ${reviewData.intensity === i ? 'sel' : ''}" onclick="selectIntensity(${i}, this)"><span>${labels[i]}</span></div>`
+    ).join('')}</div><br>`;
+  } else if (def.type === 'category') {
+    const cats = ['work', 'relationship', 'environment', 'health', 'self', 'other'];
+    body.innerHTML = `<div class="category-grid">${cats.map(c =>
+      `<div class="cat-opt ${reviewData.category === c ? 'sel' : ''}" onclick="selectCategory('${c}', this)">${c.charAt(0).toUpperCase()+c.slice(1)}</div>`
+    ).join('')}</div><br>`;
+  } else {
+    body.innerHTML = `<input class="modal-input" id="modal-input-text" type="text" value="${(reviewData[key]||'').replace(/"/g,'&quot;')}" placeholder="Enter ${def.label.toLowerCase()}…"><br>`;
+    setTimeout(() => document.getElementById('modal-input-text')?.focus(), 100);
+  }
+
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function selectIntensity(val, el) {
+  document.querySelectorAll('.intensity-opt').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  reviewData.intensity = val;
+}
+
+function selectCategory(val, el) {
+  document.querySelectorAll('.cat-opt').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  reviewData.category = val;
+}
+
+function saveModalField() {
+  const def = fieldDefs.find(f => f.key === editingField);
+  if (def.type === 'text') {
+    const inp = document.getElementById('modal-input-text');
+    if (inp) reviewData[editingField] = inp.value;
+  }
+  closeModal();
+  renderReview();
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('edit-modal')) return;
+  document.getElementById('edit-modal').classList.remove('open');
+}
+
+// ═══════════════════ SAVE ENTRY ═══════════════════
+function saveEntry() {
+  const entry = { ...reviewData, id: Date.now() };
+  entries.unshift(entry);
+  localStorage.setItem('th_entries', JSON.stringify(entries));
+  showScreen('success');
+  setTimeout(() => showScreen('home'), 2200);
+}
+
+// ═══════════════════ HOME RENDER ═══════════════════
+function renderHome() {
+  const h = new Date().getHours();
+  const greeting = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('hero-greeting').textContent = greeting;
+
+  const now = new Date();
+  const weekAgo = new Date(now - 7 * 86400000);
+  const weekEntries = entries.filter(e => new Date(e.timestamp) > weekAgo);
+  document.getElementById('stat-week').textContent = weekEntries.length;
+  document.getElementById('stat-total').textContent = entries.length;
+
+  // streak
+  let streak = 0;
+  const days = new Set(entries.map(e => new Date(e.timestamp).toDateString()));
+  const d = new Date();
+  while (days.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+  document.getElementById('stat-streak').textContent = streak;
+
+  const container = document.getElementById('home-entries');
+  const recent = entries.slice(0, 5);
+  if (!recent.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🌱</div><p>No entries yet. Log your first trigger to start building awareness.</p></div>`;
+    return;
+  }
+  container.innerHTML = recent.map(e => entryCardHTML(e)).join('');
+}
+
+function entryCardHTML(e) {
+  const cat = e.category || 'other';
+  const intensityPips = [1,2,3,4,5].map(i =>
+    `<div class="intensity-pip" style="background:${i <= e.intensity ? 'var(--rose)' : 'var(--border)'}"></div>`
+  ).join('');
+  return `<div class="entry-card" onclick="openEntryDetail('${e.id}')">
+    <div class="entry-dot dot-${cat}"></div>
+    <div class="entry-body">
+      <div class="entry-what">${e.what || 'Untitled entry'}</div>
+      <div class="entry-meta">
+        <span class="entry-tag cat-${cat}">${cat.charAt(0).toUpperCase()+cat.slice(1)}</span>
+        ${e.who ? `<span class="entry-tag" style="background:#f5f5f5;color:var(--muted)">${e.who}</span>` : ''}
+        <div class="intensity-bar">${intensityPips}</div>
+        <span class="entry-time">${formatTime(e.timestamp)}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function formatTime(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = now - d;
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+  if (diff < 86400000) return d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+}
+
+// ═══════════════════ JOURNAL ═══════════════════
+let activeFilter = 'all';
+function filterJournal(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderJournal(cat);
+}
+
+function renderJournal(filter) {
+  const filtered = filter === 'all' ? entries : entries.filter(e => e.category === filter);
+  const container = document.getElementById('journal-entries');
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>No entries ${filter === 'all' ? 'yet' : 'in this category'}.</p></div>`;
+    return;
+  }
+  // Group by date
+  const groups = {};
+  filtered.forEach(e => {
+    const label = groupLabel(e.timestamp);
+    if (!groups[label]) groups[label] = [];
+    groups[label].push(e);
+  });
+  container.innerHTML = Object.entries(groups).map(([label, grpEntries]) =>
+    `<div class="date-group-label">${label}</div><div class="entries-list" style="margin-bottom:8px">${grpEntries.map(entryCardHTML).join('')}</div>`
+  ).join('');
+}
+
+function groupLabel(iso) {
+  const d = new Date(iso);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yesterday = new Date(today - 86400000);
+  const dDay = new Date(d); dDay.setHours(0,0,0,0);
+  if (dDay.getTime() === today.getTime()) return 'Today';
+  if (dDay.getTime() === yesterday.getTime()) return 'Yesterday';
+  return d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+// ═══════════════════ ENTRY DETAIL ═══════════════════
+function openEntryDetail(id) {
+  const e = entries.find(en => en.id == id);
+  if (!e) return;
+  currentDetailId = id;
+  const cat = e.category || 'other';
+  const intensityLabels = ['', 'Very low', 'Low', 'Moderate', 'High', 'Very high'];
+  document.getElementById('detail-what').textContent = e.what || 'Untitled entry';
+  document.getElementById('detail-fields').innerHTML = `
+    ${e.who ? `<div class="entry-detail-field"><div class="entry-detail-field-lbl">Who</div><div class="entry-detail-field-val">${e.who}</div></div>` : ''}
+    ${e.where ? `<div class="entry-detail-field"><div class="entry-detail-field-lbl">Where</div><div class="entry-detail-field-val">${e.where}</div></div>` : ''}
+    <div class="entry-detail-field"><div class="entry-detail-field-lbl">When</div><div class="entry-detail-field-val">${e.when}</div></div>
+    <div class="entry-detail-field"><div class="entry-detail-field-lbl">Intensity</div><div class="entry-detail-field-val">${intensityLabels[e.intensity] || '–'}</div></div>
+    <div class="entry-detail-field"><div class="entry-detail-field-lbl">Category</div><div class="entry-detail-field-val"><span class="entry-tag cat-${cat}">${cat.charAt(0).toUpperCase()+cat.slice(1)}</span></div></div>
+  `;
+  document.getElementById('detail-note').textContent = e.note || '';
+  document.getElementById('entry-detail-modal').classList.add('open');
+}
+
+function closeEntryDetail(e) {
+  if (e && e.target !== document.getElementById('entry-detail-modal')) return;
+  document.getElementById('entry-detail-modal').classList.remove('open');
+}
+
+function deleteCurrentEntry() {
+  entries = entries.filter(e => e.id != currentDetailId);
+  localStorage.setItem('th_entries', JSON.stringify(entries));
+  document.getElementById('entry-detail-modal').classList.remove('open');
+  if (currentScreen === 'home') renderHome();
+  if (currentScreen === 'journal') renderJournal(activeFilter);
+}
+
+// ═══════════════════ INSIGHTS ═══════════════════
+function renderInsights() {
+  document.getElementById('ins-total').textContent = entries.length;
+  if (!entries.length) {
+    document.getElementById('ins-top-cat').textContent = '–';
+    document.getElementById('ins-avg').textContent = '–';
+    document.getElementById('prompt-preview').textContent = 'Add some entries first to generate your personalised AI prompt.';
+    return;
+  }
+  const cats = {};
+  let totalIntensity = 0;
+  entries.forEach(e => {
+    cats[e.category] = (cats[e.category] || 0) + 1;
+    totalIntensity += (e.intensity || 3);
+  });
+  const topCat = Object.entries(cats).sort((a,b) => b[1]-a[1])[0];
+  document.getElementById('ins-top-cat').textContent = topCat ? topCat[0].charAt(0).toUpperCase()+topCat[0].slice(1) : '–';
+  document.getElementById('ins-avg').textContent = (totalIntensity / entries.length).toFixed(1);
+  buildPrompt(currentPromptStyle);
+}
+
+function selectPromptStyle(btn) {
+  document.querySelectorAll('.prompt-style-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentPromptStyle = btn.dataset.style;
+  buildPrompt(currentPromptStyle);
+}
+
+function buildPrompt(style) {
+  if (!entries.length) return;
+  const summary = entries.map((e, i) =>
+    `${i+1}. [${e.when}] What: ${e.what}${e.who ? ` | Who: ${e.who}` : ''}${e.where ? ` | Where: ${e.where}` : ''} | Intensity: ${e.intensity}/5 | Category: ${e.category}`
+  ).join('\n');
+
+  const intros = {
+    trends: `I've been tracking my emotional triggers using a mental health app. Here is a log of my recent trigger entries:\n\n${summary}\n\nPlease analyse this data and identify any patterns or trends. What times of day, people, categories, or situations appear most frequently? Are there any escalating patterns in intensity? Give me an honest, compassionate analysis.`,
+    causes: `I've been tracking my emotional triggers using a mental health app. Here are my recent entries:\n\n${summary}\n\nBased on these patterns, what might be the underlying causes or root triggers behind these reactions? Please be specific, thoughtful, and compassionate. What emotional needs might not be being met?`,
+    coping: `I've been tracking my emotional triggers using a mental health app. Here are my recent entries:\n\n${summary}\n\nBased on these specific triggers and patterns, what personalised coping strategies would you recommend? Please suggest practical, evidence-based techniques I can use in the moment and over the long term.`
+  };
+  document.getElementById('prompt-preview').textContent = intros[style] || intros.trends;
+}
+
+function copyPrompt() {
+  const text = document.getElementById('prompt-preview').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="width:18px;height:18px;stroke:#fff"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+    setTimeout(() => {
+      btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="width:18px;height:18px;stroke:#fff"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy prompt to clipboard`;
+    }, 2000);
+  }).catch(() => alert('Please long-press the text above and copy manually.'));
+}
+
+// ═══════════════════ BREATHING ═══════════════════
+function openBreathe() {
+  document.getElementById('breathe-modal').classList.add('open');
+  document.getElementById('breathe-label').textContent = 'Box Breathing';
+  document.getElementById('breathe-count').textContent = '4';
+  document.getElementById('breathe-start-btn').style.display = 'block';
+  document.getElementById('breathe-circle').classList.remove('expand');
+}
+
+function closeBreathe() {
+  clearInterval(breatheInterval);
+  breatheInterval = null;
+  breathePhase = 0;
+  document.getElementById('breathe-modal').classList.remove('open');
+}
+
+function startBreathe() {
+  document.getElementById('breathe-start-btn').style.display = 'none';
+  breathePhase = 0;
+  runBreathePhase();
+}
+
+function runBreathePhase() {
+  const phase = breathePhases[breathePhase % 4];
+  const circle = document.getElementById('breathe-circle');
+  document.getElementById('breathe-label').textContent = phase.label;
+  if (phase.expand) circle.classList.add('expand');
+  else circle.classList.remove('expand');
+
+  let count = phase.count;
+  document.getElementById('breathe-count').textContent = count;
+  clearInterval(breatheInterval);
+  breatheInterval = setInterval(() => {
+    count--;
+    document.getElementById('breathe-count').textContent = count;
+    if (count <= 0) {
+      clearInterval(breatheInterval);
+      breathePhase++;
+      setTimeout(runBreathePhase, 300);
+    }
+  }, 1000);
+}
+
+// ═══════════════════ OTHER EXERCISES ═══════════════════
+const exercises = {
+  '5-4-3-2-1': {
+    title: '5-4-3-2-1 Senses',
+    steps: [
+      { num: '5', sense: 'See', instruction: 'Look around and name 5 things you can see right now.' },
+      { num: '4', sense: 'Touch', instruction: 'Notice 4 things you can physically feel — your clothes, the ground, the air.' },
+      { num: '3', sense: 'Hear', instruction: 'Listen for 3 sounds in your environment right now.' },
+      { num: '2', sense: 'Smell', instruction: 'Notice 2 things you can smell, even subtly.' },
+      { num: '1', sense: 'Taste', instruction: 'Be aware of 1 thing you can taste.' },
+    ]
+  },
+  'body-scan': {
+    title: 'Body Scan',
+    steps: [
+      { num: '1', sense: 'Head', instruction: 'Close your eyes. Notice any tension in your scalp, forehead, and jaw. Let it soften.' },
+      { num: '2', sense: 'Shoulders', instruction: 'Drop your shoulders away from your ears. Notice if you\'ve been holding tension there.' },
+      { num: '3', sense: 'Chest', instruction: 'Take a slow, deep breath into your chest. Feel it rise and fall.' },
+      { num: '4', sense: 'Stomach', instruction: 'Breathe into your belly. Let it expand fully. Release any tightness.' },
+      { num: '5', sense: 'Legs & Feet', instruction: 'Feel the weight of your legs. Press your feet firmly into the floor. You are grounded.' },
+    ]
+  },
+  'reframe': {
+    title: 'Cognitive Reframe',
+    steps: [
+      { num: '1', sense: 'Name it', instruction: 'What thought is making you feel triggered right now? Say it plainly.' },
+      { num: '2', sense: 'Challenge it', instruction: 'Is this thought 100% true? What evidence do you have for and against it?' },
+      { num: '3', sense: 'Zoom out', instruction: 'Will this matter in 5 years? What would you tell a close friend in this situation?' },
+      { num: '4', sense: 'Reframe', instruction: 'What is a more balanced, compassionate way to see this situation?' },
+      { num: '5', sense: 'Act', instruction: 'What is one small action you can take right now to feel more in control?' },
+    ]
+  }
+};
+
+let exerciseStep = 0;
+let currentExercise = null;
+
+function openExercise(type) {
+  currentExercise = exercises[type];
+  exerciseStep = 0;
+  renderExerciseStep();
+  document.getElementById('exercise-modal').classList.add('open');
+}
+
+function renderExerciseStep() {
+  const ex = currentExercise;
+  const step = ex.steps[exerciseStep];
+  const isLast = exerciseStep === ex.steps.length - 1;
+  document.getElementById('exercise-content').innerHTML = `
+    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:24px">${ex.title}</div>
+    <div style="width:72px;height:72px;border-radius:50%;background:rgba(61,107,79,0.4);border:2px solid rgba(90,138,106,0.5);display:flex;align-items:center;justify-content:center;margin:0 auto 28px;font-family:'Playfair Display',serif;font-size:32px;color:#fff">${step.num}</div>
+    <div style="font-family:'Playfair Display',serif;font-size:24px;color:#fff;margin-bottom:16px;text-align:center">${step.sense}</div>
+    <div style="font-size:16px;color:rgba(255,255,255,0.75);line-height:1.65;text-align:center;margin-bottom:40px;max-width:300px;margin-left:auto;margin-right:auto">${step.instruction}</div>
+    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:32px">
+      ${ex.steps.map((_, i) => `<div style="width:8px;height:8px;border-radius:50%;background:${i === exerciseStep ? '#fff' : 'rgba(255,255,255,0.25)'}"></div>`).join('')}
+    </div>
+    <button class="breathe-start" onclick="${isLast ? 'document.getElementById(\'exercise-modal\').classList.remove(\'open\')' : 'nextExerciseStep()'}">${isLast ? 'Done' : 'Next'}</button>
+  `;
+}
+
+function nextExerciseStep() {
+  exerciseStep++;
+  renderExerciseStep();
+}
+
+// ═══════════════════ INIT ═══════════════════
+renderHome();
+</script>
+</body>
+</html>
